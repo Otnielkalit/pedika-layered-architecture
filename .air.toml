@@ -1,0 +1,15 @@
+# Ganti root jadi kosong agar Air jalan di root project
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Ubah cmd ke arah direktori `internal/cmd/.`
+  cmd = "go build -o tmp/main.exe ./cmd"
+  bin = "tmp/main.exe"
+  delay = 1000
+  exclude_dir = ["assets", "tmp", "vendor"]
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  exclude_regex = ["_test\\.go"]
+
+[misc]
+  clean_on_exit = true
