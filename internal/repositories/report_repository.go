@@ -9,6 +9,9 @@ import (
 type ReportRepository interface {
 	GetByUserID(userID uint) ([]models.Report, error)
 	GetByNoRegistrasi(noReg string) (*models.Report, error)
+	Create(report *models.Report) error
+	GetLastNoRegistrasi() (string, error)
+	Update(noReg string, report *models.Report) error
 }
 
 type reportRepository struct {
@@ -35,10 +38,19 @@ func (r *reportRepository) GetByNoRegistrasi(noReg string) (*models.Report, erro
 	return &report, nil
 }
 
+func (r *reportRepository) Create(report *models.Report) error {
+	return r.db.Create(report).Error
+}
 
-func (r *reportRepository) CreateReport(report *models.Report) (*models.Report, error) {
-	if err := r.db.Create(report).Error; err != nil {
-		return nil, err
+func (r *reportRepository) GetLastNoRegistrasi() (string, error) {
+	var lastReport models.Report
+	err := r.db.Order("no_registrasi desc").First(&lastReport).Error
+	if err == gorm.ErrRecordNotFound {
+		return "000-DPMDPPA-IX-2000", nil
 	}
-	return report, nil
+	return lastReport.NoRegistrasi, err
+}
+
+func (r *reportRepository) Update(noReg string, report *models.Report) error {
+	return r.db.Where("no_registrasi = ?", noReg).Save(report).Error
 }
