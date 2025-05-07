@@ -24,7 +24,12 @@ func NewReportRepository(db *gorm.DB) ReportRepository {
 
 func (r *reportRepository) GetByUserID(userID uint) ([]models.Report, error) {
 	var reports []models.Report
-	if err := r.db.Where("user_id = ?", userID).Order("created_at desc").Find(&reports).Error; err != nil {
+	if err := r.db.
+		Preload("User").
+		Preload("ViolenceCategory").
+		Where("user_id = ?", userID).
+		Order("created_at desc").
+		Find(&reports).Error; err != nil {
 		return nil, err
 	}
 	return reports, nil
@@ -32,7 +37,11 @@ func (r *reportRepository) GetByUserID(userID uint) ([]models.Report, error) {
 
 func (r *reportRepository) GetByNoRegistrasi(noReg string) (*models.Report, error) {
 	var report models.Report
-	if err := r.db.Where("no_registrasi = ?", noReg).First(&report).Error; err != nil {
+	if err := r.db.
+		Preload("User").
+		Preload("ViolenceCategory").
+		Where("no_registrasi = ?", noReg).
+		First(&report).Error; err != nil {
 		return nil, err
 	}
 	return &report, nil
