@@ -19,6 +19,8 @@ type ReportService interface {
 	GetByNoRegistrasi(noReg string) (*models.Report, error)
 	CreateReport(userID uint, req *CreateReportRequest) (*models.Report, error)
 	UpdateReport(userID uint, req *UpdateReportRequest) error
+	DeleteReport(noRegistrasi string) error
+	CancelReport(noReg string, alasan string) error
 }
 
 type CreateReportRequest struct {
@@ -156,6 +158,29 @@ func (s *reportService) UpdateReport(userID uint, req *UpdateReportRequest) erro
 	}
 
 	return nil
+}
+
+func (s *reportService) DeleteReport(noRegistrasi string) error {
+	report, err := s.reportRepo.GetByNoRegistrasi(noRegistrasi)
+	if err != nil {
+		return fmt.Errorf("laporan tidak ditemukan")
+	}
+
+	return s.reportRepo.Delete(report.NoRegistrasi)
+}
+
+func (s *reportService) CancelReport(noReg string, alasan string) error {
+	if strings.TrimSpace(alasan) == "" {
+		return fmt.Errorf("alasan pembatalan wajib diisi")
+	}
+	report, err := s.reportRepo.GetByNoRegistrasi(noReg)
+	if err != nil {
+		return fmt.Errorf("laporan tidak ditemukan")
+	}
+	if report.Status == "Dibatalkan" {
+		return fmt.Errorf("laporan sudah dibatalkan sebelumnya")
+	}
+	return s.reportRepo.Cancel(noReg, alasan)
 }
 
 func (s *reportService) generateNoRegistrasi() (string, error) {

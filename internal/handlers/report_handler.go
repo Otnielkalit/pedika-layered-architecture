@@ -116,3 +116,37 @@ func (h *ReportHandler) UpdateReport(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Laporan berhasil diperbarui"})
 }
+
+func (h *ReportHandler) DeleteReport(c *fiber.Ctx) error {
+	noReg := c.Params("no_registrasi")
+	err := h.service.DeleteReport(noReg)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": "Laporan berhasil dihapus",
+	})
+}
+
+func (h *ReportHandler) CancelReport(c *fiber.Ctx) error {
+	noReg := c.Params("no_registrasi")
+	type CancelPayload struct {
+		Alasan string `json:"alasan"`
+	}
+	var payload CancelPayload
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "format request tidak valid"})
+	}
+	if payload.Alasan == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "alasan wajib diisi"})
+	}
+
+	err := h.service.CancelReport(noReg, payload.Alasan)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "Laporan berhasil dibatalkan"})
+}

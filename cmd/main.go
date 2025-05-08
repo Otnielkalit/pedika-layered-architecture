@@ -38,8 +38,20 @@ func main() {
 	reportService := services.NewReportService(reportRepo, categoryRepo, cloudSvc)
 	reportHandler := handlers.NewReportHandler(reportService)
 
+	// Admin Manage Report
+	adminReportRepo := repositories.NewAdminManageReportRepository(db)
+	adminReportService := services.NewAdminManageReportService(adminReportRepo)
+	adminReportHandler := handlers.NewAdminManageReportHandler(adminReportService)
+
+	// Admin Manage Tracking Report
+
+	// Admin Manage Report Tracking
+	adminManageTrackingRepo := repositories.NewReportTrackingRepository(db)
+	adminTrackingReportService := services.NewReportTrackingService(adminManageTrackingRepo, reportRepo, cloudSvc)
+	adminTrackingReportHandler := handlers.NewReportTrackingHandler(adminTrackingReportService)
+
 	// Routes
-	routes.SetupRoutes(app, authHandler, categoryHandler, reportHandler)
+	routes.SetupRoutes(app, authHandler, categoryHandler, reportHandler, adminReportHandler, adminTrackingReportHandler)
 
 	app.Listen(":8087")
 }

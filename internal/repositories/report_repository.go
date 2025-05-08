@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"pedika-layered-architecture/internal/models"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -12,6 +13,9 @@ type ReportRepository interface {
 	Create(report *models.Report) error
 	GetLastNoRegistrasi() (string, error)
 	Update(noReg string, report *models.Report) error
+	Delete(noReg string) error
+	Cancel(noReg string, alasan string) error
+	ExistsByNoRegistrasi(noReg string) (bool, error)
 }
 
 type reportRepository struct {
@@ -62,4 +66,25 @@ func (r *reportRepository) GetLastNoRegistrasi() (string, error) {
 
 func (r *reportRepository) Update(noReg string, report *models.Report) error {
 	return r.db.Where("no_registrasi = ?", noReg).Save(report).Error
+}
+
+func (r *reportRepository) Delete(noReg string) error {
+	return r.db.Where("no_registrasi = ?", noReg).Delete(&models.Report{}).Error
+}
+
+func (r *reportRepository) Cancel(noReg string, alasan string) error {
+	now := time.Now()
+	return r.db.Model(&models.Report{}).
+		Where("no_registrasi = ?", noReg).
+		Updates(map[string]interface{}{
+			"alasan_dibatalkan": alasan,
+			"waktu_dibatalkan":  now,
+			"status":            "Dibatalkan",
+		}).Error
+}
+
+func (r *reportRepository) ExistsByNoRegistrasi(noReg string) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.Report{}).Where("no_registrasi = ?", noReg).Count(&count).Error
+	return count > 0, err
 }

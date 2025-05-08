@@ -7,7 +7,7 @@ import (
 )
 
 func AutoMigrate() {
-	err := config.DB.AutoMigrate(&models.User{}, &models.ViolenceCategory{}, &models.Report{})
+	err := config.DB.AutoMigrate(&models.User{}, &models.ViolenceCategory{}, &models.Report{}, &models.ReportTracking{})
 	if err != nil {
 		log.Fatalf("❌ Gagal migrasi database: %v", err)
 	}
