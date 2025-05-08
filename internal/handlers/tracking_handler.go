@@ -52,7 +52,7 @@ func (h *ReportTrackingHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *ReportTrackingHandler) GetByNoRegistrasi(c *fiber.Ctx) error {
-	noReg := c.Params("noReg")
+	noReg := c.Params("no_registrasi")
 
 	trackings, err := h.service.GetByNoRegistrasi(noReg)
 	if err != nil {
